@@ -38,7 +38,12 @@ export async function GET() {
       supabase(`daily_checkins?athlete_key=eq.${ATHLETE_KEY}&select=*&order=checkin_date.desc`),
       supabase(`weekly_programs?athlete_key=eq.${ATHLETE_KEY}&select=*&order=week_number.desc`),
     ]);
-    return NextResponse.json({ configured: true, workouts, checkins, programs });
+    let activeWeek: number | null = null;
+    try {
+      const profiles = await supabase(`athlete_profiles?athlete_key=eq.${ATHLETE_KEY}&select=active_week&limit=1`);
+      activeWeek = Number(profiles?.[0]?.active_week) || null;
+    } catch {}
+    return NextResponse.json({ configured: true, workouts, checkins, programs, activeWeek });
   } catch (error) {
     return NextResponse.json({ configured: true, error: error instanceof Error ? error.message : "Sync error" }, { status: 500 });
   }
@@ -71,6 +76,21 @@ export async function POST(request: NextRequest) {
         headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
         body: JSON.stringify({ athlete_key: ATHLETE_KEY, week_number: item.weekNumber, title: item.title, rationale: item.rationale, status: item.status, program: item.days, approved_at: item.status === "approved" ? new Date().toISOString() : null }),
       });
+    } else if (body.type === "activeWeek") {
+      const week = Number(body.data?.week);
+      if (!Number.isInteger(week) || week < 1) return NextResponse.json({ error: "Invalid week" }, { status: 400 });
+      await supabase(`athlete_profiles?athlete_key=eq.${ATHLETE_KEY}`, {
+        method: "PATCH",
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify({ active_week: week, updated_at: new Date().toISOString() }),
+      });
+    } else if (body.type === "deleteWeek") {
+      const week = Number(body.data?.week);
+      if (!Number.isInteger(week) || week <= 1) return NextResponse.json({ error: "Week 1 cannot be deleted" }, { status: 400 });
+      await Promise.all([
+        supabase(`weekly_programs?athlete_key=eq.${ATHLETE_KEY}&week_number=eq.${week}`, { method: "DELETE", headers: { Prefer: "return=minimal" } }),
+        supabase(`workout_sessions?athlete_key=eq.${ATHLETE_KEY}&week_number=eq.${week}`, { method: "DELETE", headers: { Prefer: "return=minimal" } }),
+      ]);
     } else {
       return NextResponse.json({ error: "Unknown sync type" }, { status: 400 });
     }
