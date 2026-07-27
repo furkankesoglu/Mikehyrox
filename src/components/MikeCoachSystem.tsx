@@ -1,8 +1,8 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { week1Program, WeekExercise } from "@/lib/week1Program";
-import { generateProgram } from "@/lib/programEngine";
+import { week1Program, WeekExercise } from "../lib/week1Program";
+import { generateProgram } from "../lib/programEngine";
 import styles from "./MikeCoachSystem.module.css";
 
 type Log={status:"pending"|"complete"|"partial"|"skipped";weight:string;time:string;distance:string;reps:string;pace:string;rpe:string;painBefore:string;painAfter:string;note:string};
