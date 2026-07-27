@@ -50,9 +50,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     if (body.type === "workout") {
       const item = body.data;
-      await supabase("workout_sessions?on_conflict=athlete_key,week_number,workout_date,day_key", {
+      const filter = `athlete_key=eq.${ATHLETE_KEY}&week_number=eq.${item.week}&workout_date=eq.${item.date}&day_key=eq.${item.dayKey}`;
+      await supabase(`workout_sessions?${filter}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
+      await supabase("workout_sessions", {
         method: "POST",
-        headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+        headers: { Prefer: "return=minimal" },
         body: JSON.stringify({ athlete_key: ATHLETE_KEY, week_number: item.week, workout_date: item.date, day_key: item.dayKey, day_label: item.dayLabel, theme: item.theme, exercises: item.exercises, updated_at: new Date().toISOString() }),
       });
     } else if (body.type === "checkin") {
