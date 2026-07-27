@@ -7,9 +7,12 @@ create table if not exists athlete_profiles (
   height_cm integer,
   weight_kg numeric,
   injury_notes text,
+  active_week integer not null default 1,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+
+alter table athlete_profiles add column if not exists active_week integer not null default 1;
 
 create table if not exists workout_sessions (
   id uuid primary key default gen_random_uuid(),
@@ -66,8 +69,8 @@ alter table daily_checkins enable row level security;
 alter table weekly_programs enable row level security;
 alter table coach_messages enable row level security;
 
-insert into athlete_profiles (athlete_key, name, height_cm, weight_kg, injury_notes)
-values ('yusuf-bezeng', 'Yusuf Bezeng', 183, 91, 'Ciddi bel sakatlığı geçmişi; programlamada yüksek öncelik.')
+insert into athlete_profiles (athlete_key, name, height_cm, weight_kg, injury_notes, active_week)
+values ('yusuf-bezeng', 'Yusuf Bezeng', 183, 91, 'Ciddi bel sakatlığı geçmişi; programlamada yüksek öncelik.', 1)
 on conflict (athlete_key) do update set
   name = excluded.name,
   height_cm = excluded.height_cm,
