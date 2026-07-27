@@ -1,5 +1,5 @@
-import MikeAppV2 from "@/components/MikeAppV2";
+import MikeWeek1App from "@/components/MikeWeek1App";
 
 export default function Home() {
-  return <MikeAppV2 />;
+  return <MikeWeek1App />;
 }
