@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./sprint2.css";
 
 export const metadata: Metadata = {
   title: "MIKE | HYROX Coach",
