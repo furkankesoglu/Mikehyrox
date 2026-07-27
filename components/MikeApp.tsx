@@ -50,7 +50,11 @@ export default function MikeApp() {
 
   function login(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const expectedPin = process.env.NEXT_PUBLIC_MIKE_PIN || "1909";
+    const expectedPin = process.env.NEXT_PUBLIC_MIKE_PIN;
+    if (!expectedPin) {
+      setError("Sistem PIN’i henüz yapılandırılmadı.");
+      return;
+    }
     if (pin === expectedPin) {
       localStorage.setItem(AUTH_KEY, "true");
       setAuthenticated(true);
@@ -81,7 +85,7 @@ export default function MikeApp() {
           <div className="brand-mark">M</div>
           <p className="eyebrow">HYROX PERFORMANCE SYSTEM</p>
           <h1>MIKE</h1>
-          <p className="login-copy">19 Eylül’e kadar her gün ne yapacağını bil.</p>
+          <p className="login-copy">Yusuf Bezeng için 19 Eylül’e kadar kişisel yarış hazırlığı.</p>
           <form onSubmit={login}>
             <label htmlFor="pin">Kişisel PIN</label>
             <input
@@ -96,7 +100,7 @@ export default function MikeApp() {
             {error && <p className="error">{error}</p>}
             <button type="submit">SİSTEME GİR</button>
           </form>
-          <span className="login-hint">İlk kurulum PIN’i: 1909</span>
+          <span className="login-hint">Yalnızca Yusuf Bezeng için kişisel erişim</span>
         </section>
       </main>
     );
@@ -107,7 +111,7 @@ export default function MikeApp() {
       <header className="topbar">
         <div>
           <p className="eyebrow">HYROX COMMAND CENTER</p>
-          <h1>Günaydın, Furkan.</h1>
+          <h1>Günaydın, Yusuf.</h1>
         </div>
         <button className="ghost-button" onClick={logout}>Çıkış</button>
       </header>
