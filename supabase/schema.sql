@@ -21,7 +21,8 @@ create table if not exists workout_sessions (
   theme text,
   exercises jsonb not null default '[]'::jsonb,
   created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  updated_at timestamptz default now(),
+  unique (athlete_key, week_number, workout_date, day_key)
 );
 
 create table if not exists daily_checkins (
@@ -64,6 +65,15 @@ alter table workout_sessions enable row level security;
 alter table daily_checkins enable row level security;
 alter table weekly_programs enable row level security;
 alter table coach_messages enable row level security;
+
+insert into athlete_profiles (athlete_key, name, height_cm, weight_kg, injury_notes)
+values ('yusuf-bezeng', 'Yusuf Bezeng', 183, 91, 'Ciddi bel sakatlığı geçmişi; programlamada yüksek öncelik.')
+on conflict (athlete_key) do update set
+  name = excluded.name,
+  height_cm = excluded.height_cm,
+  weight_kg = excluded.weight_kg,
+  injury_notes = excluded.injury_notes,
+  updated_at = now();
 
 -- Tek kullanıcı MVP'sinde erişim yalnızca sunucu tarafındaki service role anahtarıyla yapılmalıdır.
 -- Frontend'e service role anahtarı koymayın. Kullanıcı hesabı eklendiğinde auth.uid() tabanlı RLS politikaları tanımlayın.
