@@ -71,6 +71,15 @@ export async function POST(request: NextRequest) {
           updated_at: new Date().toISOString(),
         }),
       });
+    } else if (body.type === "deleteWorkout") {
+      const week = Number(body.data?.week);
+      const date = String(body.data?.date || "");
+      const dayKey = String(body.data?.dayKey || "");
+      if (!Number.isInteger(week) || week < 1 || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !dayKey) {
+        return NextResponse.json({ error: "Invalid workout identity" }, { status: 400 });
+      }
+      const filter = `athlete_key=eq.${ATHLETE_KEY}&week_number=eq.${week}&workout_date=eq.${date}&day_key=eq.${encodeURIComponent(dayKey)}`;
+      await supabase(`workout_sessions?${filter}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
     } else if (body.type === "checkin") {
       const item = body.data;
       await supabase("daily_checkins?on_conflict=athlete_key,checkin_date", {
