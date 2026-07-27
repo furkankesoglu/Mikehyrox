@@ -60,7 +60,16 @@ export async function POST(request: NextRequest) {
       await supabase("workout_sessions", {
         method: "POST",
         headers: { Prefer: "return=minimal" },
-        body: JSON.stringify({ athlete_key: ATHLETE_KEY, week_number: item.week, workout_date: item.date, day_key: item.dayKey, day_label: item.dayLabel, theme: item.theme, exercises: item.exercises, updated_at: new Date().toISOString() }),
+        body: JSON.stringify({
+          athlete_key: ATHLETE_KEY,
+          week_number: item.week,
+          workout_date: item.date,
+          day_key: item.dayKey,
+          day_label: item.dayLabel,
+          theme: item.theme,
+          exercises: { items: item.exercises || [], cardio: item.cardio || null },
+          updated_at: new Date().toISOString(),
+        }),
       });
     } else if (body.type === "checkin") {
       const item = body.data;
